@@ -1,9 +1,10 @@
+import 'package:app/utils/biometrics_result.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:local_auth/error_codes.dart' as authError;
 
 class BiometricsService {
-  Future<bool> checkBiometrics() async =>
+  Future<bool> checkAvailableBiometrics() async =>
       (await LocalAuthentication().canCheckBiometrics) &&
       ((await LocalAuthentication().getAvailableBiometrics())
               .contains(BiometricType.face) ||
@@ -24,11 +25,4 @@ class BiometricsService {
       return BiometricsResult(false, message: 'Something wrong on system');
     }
   }
-}
-
-class BiometricsResult {
-  bool success;
-  String? message;
-
-  BiometricsResult(this.success, {this.message});
 }

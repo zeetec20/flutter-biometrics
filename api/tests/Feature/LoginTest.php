@@ -23,6 +23,18 @@ class LoginTest extends TestCase
         $this->assertArrayHasKey('token', $response->json()['data']);
     }
 
+    public function test_failed_email_password_incorrect()
+    {
+        $user = User::factory()->create();
+        $response = $this->post(route('login'), [
+            'email' => $user->email,
+            'password' => 'admin1234'
+        ]);
+        $response->assertStatus(200);
+        $this->assertFalse($response->json()['success']);
+        $this->assertEquals('email or password incorrect', $response->json()['message']);
+    }
+
     public function test_failed_without_body()
     {
         $response = $this->post(route('login'));

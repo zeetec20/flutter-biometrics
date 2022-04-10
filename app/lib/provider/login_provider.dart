@@ -1,3 +1,4 @@
+import 'package:app/repository/user_repository.dart';
 import 'package:app/service/auth_service.dart';
 import 'package:app/utils/auth_result.dart';
 import 'package:app/utils/validate.dart';
@@ -8,7 +9,7 @@ class LoginProvider with ChangeNotifier {
   TextEditingController passwordController = TextEditingController();
   ValidateResult? emailCorrect;
   ValidateResult? passwordCorrect;
-  AuthService authService = AuthService();
+  AuthService authService = AuthService(UserRepository());
   bool submited = false;
   bool showPassword = false;
 

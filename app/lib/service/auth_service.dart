@@ -1,20 +1,23 @@
 import 'dart:convert';
 
 import 'package:app/model/User.dart';
+import 'package:app/repository/user_repository.dart';
 import 'package:app/utils/auth_result.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService {
+  final UserRepository userRepository;
+
+  AuthService(this.userRepository);
+
   Future<AuthResult> login(String email, String password) async {
     try {
-      http.Response response = await http.post(
-          Uri.parse('${dotenv.env['API_URL']!}/api/login'),
-          body: {'email': email, 'password': password});
+      http.Response response = await userRepository.login(email, password);
       Map json = jsonDecode(response.body);
-      http.Response responseProfile = await http.get(
-          Uri.parse('${dotenv.env['API_URL']!}/api/profile'),
-          headers: {'Authorization': 'Bearer ${json['data']['token']}'});
+      if (!json['success'])
+        return AuthResult(false, message: 'Email or password incorrect');
+      http.Response responseProfile =
+          await userRepository.profile(json['data']['token']);
       Map profileJson = jsonDecode(responseProfile.body);
 
       User user = User(
@@ -23,25 +26,21 @@ class AuthService {
           email: email,
           useBiometrics: profileJson['use_biometrics'] == 1,
           token: json['data']['token']);
-      if (json['success']) return AuthResult(true, user: user);
+      return AuthResult(true, user: user);
     } catch (e) {
-      return AuthResult(false,
-          message: 'Failed sign in, something wrong on system');
+      return AuthResult(false, message: e.toString());
     }
-    return AuthResult(false, message: 'Email or password incorrect');
   }
 
   Future<AuthResult> register(
       String name, String email, String password) async {
     try {
-      http.Response response = await http.post(
-          Uri.parse('${dotenv.env['API_URL']!}/api/register'),
-          body: {'name': name, 'email': email, 'password': password});
-      print(response.body);
+      http.Response response =
+          await userRepository.register(name, email, password);
       Map json = jsonDecode(response.body) as Map;
-      if (json['success']) return AuthResult(true);
+
+      if (json['success']) return AuthResult(true, message: 'Register success');
     } catch (e) {
-      print(e);
       return AuthResult(false,
           message: 'Failed sign up, something wrong on system');
     }

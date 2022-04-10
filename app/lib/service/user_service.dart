@@ -1,39 +1,39 @@
 import 'dart:convert';
 
 import 'package:app/model/User.dart';
+import 'package:app/repository/user_repository.dart';
+import 'package:app/service/biometrics_service.dart';
+import 'package:app/utils/biometrics_result.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class UserService {
-  Future<User> profile(String token) async {
-    http.Response response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']!}/api/profile'),
-      headers: {'Authorization': 'Bearer $token'},
-    );
-    print(response.statusCode);
-    print(token);
-    print(response.body);
-    Map json = jsonDecode(response.body);
+  final UserRepository userRepository;
 
-    print(json['use_biometrics']);
-    return User(
-        id: json['id'],
-        name: json['name'],
-        email: json['email'],
-        useBiometrics: json['use_biometrics'] == 1,
-        token: token);
+  UserService(this.userRepository);
+
+  Future<User?> profile(String token) async {
+    try {
+      http.Response response = await userRepository.profile(token);
+      Map json = jsonDecode(response.body);
+
+      return User(
+          id: json['id'],
+          name: json['name'],
+          email: json['email'],
+          useBiometrics: json['use_biometrics'] == 1,
+          token: token);
+    } catch (e) {
+      return null;
+    }
   }
 
-  Future<bool> setBiometrics(String token) async {
+  Future<BiometricsResult> setBiometrics(String token) async {
     try {
-      http.Response response = await http.post(
-        Uri.parse('${dotenv.env['API_URL']!}/api/biometrics'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
-      print(response.body);
-      return jsonDecode(response.body)['success'];
+      await userRepository.biometrics(token);
+
+      return BiometricsResult(true);
     } catch (e) {
-      return false;
+      return BiometricsResult(false, message: 'Something wrong with system');
     }
   }
 }

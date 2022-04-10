@@ -1,3 +1,4 @@
+import 'package:app/repository/user_repository.dart';
 import 'package:app/service/auth_service.dart';
 import 'package:app/utils/auth_result.dart';
 import 'package:app/utils/validate.dart';
@@ -10,7 +11,7 @@ class RegisterProvider with ChangeNotifier {
   ValidateResult? nameCorrect;
   ValidateResult? emailCorrect;
   ValidateResult? passwordCorrect;
-  AuthService authService = AuthService();
+  AuthService authService = AuthService(UserRepository());
   bool showPassword = false;
   bool submited = false;
 
