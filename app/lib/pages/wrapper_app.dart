@@ -16,28 +16,32 @@ class WrapperApp extends StatelessWidget {
         builder: (context, child) {
           SharedPreferences? pref = Provider.of<SharedPreferences?>(context);
           if (pref != null) {
-            User? user = pref.containsKey('user.id') ? User(id: pref.getInt('user.id')!, name: pref.getString('user.name')! email: pref.getString('user.email')!, useBiometrics: pref.getBool('user.useBiometrics')!, token: pref.getString('user.token')!) : null;
-            return ChangeNotifierProvider(
-                create: (_) => AppProvider(user),
-                builder: (context, child) {
-                  return Scaffold(
-                    body: Consumer<AppProvider>(
-                        builder: (context, appProvider, child) {
-                      if (appProvider.isAuthenticate) {
-                        if (appProvider.user!.useBiometrics &&
-                            (!appProvider.isBiometricsAuthenticate))
-                          return BiometricsPage();
+            Provider.of<AppProvider>(context, listen: false).setUser(
+                pref.containsKey('user.id')
+                    ? User(
+                        id: pref.getInt('user.id')!,
+                        name: pref.getString('user.name')!,
+                        email: pref.getString('user.email')!,
+                        useBiometrics: pref.getBool('user.useBiometrics')!,
+                        token: pref.getString('user.token')!)
+                    : null);
+            return Scaffold(
+              body:
+                  Consumer<AppProvider>(builder: (context, appProvider, child) {
+                if (appProvider.isAuthenticate) {
+                  if (appProvider.user!.useBiometrics &&
+                      (!appProvider.isBiometricsAuthenticate))
+                    return BiometricsPage();
 
-                        return PageView(
-                          controller: appProvider.pageController,
-                          physics: NeverScrollableScrollPhysics(),
-                          children: [HomePage()],
-                        );
-                      }
-                      return WrapperAuth();
-                    }),
+                  return PageView(
+                    controller: appProvider.pageController,
+                    physics: NeverScrollableScrollPhysics(),
+                    children: [HomePage()],
                   );
-                });
+                }
+                return WrapperAuth();
+              }),
+            );
           }
           return Container();
         });

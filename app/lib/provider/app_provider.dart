@@ -8,15 +8,19 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppProvider with ChangeNotifier {
+  final UserRepository userRepository;
+  late UserService userService;
+  late AuthService authService;
   PageController pageController = PageController();
   User? user;
   bool get isAuthenticate => this.user != null;
   bool isBiometricsAuthenticate = false;
-  UserService userService = UserService(UserRepository());
-  AuthService authService = AuthService(UserRepository());
   BiometricsService biometricsService = BiometricsService();
 
-  AppProvider(this.user);
+  AppProvider(this.userRepository) {
+    this.userService = UserService(userRepository);
+    this.authService = AuthService(userRepository);
+  }
 
   Future changePage(int page) async {
     await pageController.animateToPage(page,

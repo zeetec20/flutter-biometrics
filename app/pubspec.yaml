@@ -41,6 +41,7 @@ dependencies:
   local_auth: ^1.1.11
   shared_preferences: ^2.0.13
   mockito: ^5.1.0
+  faker: ^2.0.0
 
 dev_dependencies:
   flutter_test:
