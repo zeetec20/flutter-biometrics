@@ -1,4 +1,3 @@
-import 'package:app/utils/auth_result.dart';
 import 'package:email_validator/email_validator.dart';
 
 class Validate {
