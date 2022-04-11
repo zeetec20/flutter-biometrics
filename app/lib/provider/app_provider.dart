@@ -1,20 +1,26 @@
 import 'package:app/model/User.dart';
+import 'package:app/repository/user_repository.dart';
 import 'package:app/service/auth_service.dart';
 import 'package:app/service/biometrics_service.dart';
 import 'package:app/service/user_service.dart';
+import 'package:app/utils/biometrics_result.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppProvider with ChangeNotifier {
+  final UserRepository userRepository;
+  late UserService userService;
+  late AuthService authService;
   PageController pageController = PageController();
   User? user;
   bool get isAuthenticate => this.user != null;
   bool isBiometricsAuthenticate = false;
-  UserService userService = UserService();
-  AuthService authService = AuthService();
   BiometricsService biometricsService = BiometricsService();
 
-  AppProvider(this.user);
+  AppProvider(this.userRepository) {
+    this.userService = UserService(userRepository);
+    this.authService = AuthService(userRepository);
+  }
 
   Future changePage(int page) async {
     await pageController.animateToPage(page,
@@ -23,7 +29,7 @@ class AppProvider with ChangeNotifier {
 
   Future settingBiometrics() async {
     await this.userService.setBiometrics(this.user!.token);
-    User user = await this.userService.profile(this.user!.token);
+    User? user = await this.userService.profile(this.user!.token);
     this.isBiometricsAuthenticate = true;
     this.setUser(user);
 
@@ -31,7 +37,7 @@ class AppProvider with ChangeNotifier {
   }
 
   Future<BiometricsResult> authBiometrics(String reason) async {
-    if (await this.biometricsService.checkBiometrics()) {
+    if (await this.biometricsService.checkAvailableBiometrics()) {
       BiometricsResult result = await this.biometricsService.tryAuth(reason);
       this.isBiometricsAuthenticate = result.success;
 
@@ -39,7 +45,7 @@ class AppProvider with ChangeNotifier {
       return result;
     }
     return BiometricsResult(false,
-        message: 'Your device is not avaible for biometrics');
+        message: 'Your device is not available for biometrics');
   }
 
   void refresh() => notifyListeners();

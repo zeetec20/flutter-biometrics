@@ -1,16 +1,22 @@
+import 'package:app/repository/user_repository.dart';
 import 'package:app/service/auth_service.dart';
 import 'package:app/utils/auth_result.dart';
 import 'package:app/utils/validate.dart';
 import 'package:flutter/material.dart';
 
 class LoginProvider with ChangeNotifier {
+  final UserRepository userRepository;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   ValidateResult? emailCorrect;
   ValidateResult? passwordCorrect;
-  AuthService authService = AuthService();
+  late AuthService authService;
   bool submited = false;
   bool showPassword = false;
+
+  LoginProvider(this.userRepository) {
+    this.authService = AuthService(userRepository);
+  }
 
   void changePasswordShow() {
     this.showPassword = !this.showPassword;
@@ -31,7 +37,7 @@ class LoginProvider with ChangeNotifier {
   }
 
   bool get validate =>
-      (emailCorrect?.success ?? false) || (passwordCorrect?.success ?? false);
+      (emailCorrect?.success ?? false) && (passwordCorrect?.success ?? false);
 
   Future<AuthResult> login() async {
     this.submited = true;
