@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
-  final Function changePage;
+  final Function(int) changePage;
 
   LoginPage(this.changePage);
 

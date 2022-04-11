@@ -5,7 +5,6 @@ import 'package:app/provider/app_provider.dart';
 import 'package:app/provider/login_provider.dart';
 import 'package:app/repository/user_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -16,11 +15,7 @@ import 'login_test.mocks.dart';
 
 @GenerateMocks([UserRepository])
 void main() async {
-  TestWidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
   MockUserRepository userRepository = MockUserRepository();
-  String emailSample = 'admin@gmail.com';
-  String passwordSample = 'admin123';
 
   Widget makeWidgetTest() {
     return MultiProvider(
@@ -38,7 +33,7 @@ void main() async {
       ],
       builder: (c, child) {
         return MaterialApp(
-          home: LoginPage(() {}),
+          home: LoginPage((int index) {}),
         );
       },
     );
@@ -115,8 +110,10 @@ void main() async {
     });
   });
 
-  group('login submit', () {
+  group('login', () {
     testWidgets('login success', (WidgetTester tester) async {
+      String emailSample = 'admin@gmail.com';
+      String passwordSample = 'admin123';
       http.Response resLogin = http.Response(
           jsonEncode({
             'success': true,
@@ -146,6 +143,8 @@ void main() async {
 
     testWidgets('login, failed user or password incorrect',
         (WidgetTester tester) async {
+      String emailSample = 'admin@gmail.com';
+      String passwordSample = 'admin123';
       http.Response resLogin = http.Response(
           jsonEncode(
               {'success': false, 'message': 'email or password incorrect'}),

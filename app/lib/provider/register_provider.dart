@@ -5,15 +5,20 @@ import 'package:app/utils/validate.dart';
 import 'package:flutter/material.dart';
 
 class RegisterProvider with ChangeNotifier {
+  final UserRepository userRepository;
+  late AuthService authService;
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   ValidateResult? nameCorrect;
   ValidateResult? emailCorrect;
   ValidateResult? passwordCorrect;
-  AuthService authService = AuthService(UserRepository());
   bool showPassword = false;
   bool submited = false;
+
+  RegisterProvider(this.userRepository) {
+    this.authService = AuthService(userRepository);
+  }
 
   void changePasswordShow() {
     this.showPassword = !this.showPassword;
